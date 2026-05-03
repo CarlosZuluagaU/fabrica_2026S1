@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import com.example.demo.application.repository.TitularRepositoryPort;
 import com.example.demo.domain.model.Titular;
 import com.example.demo.infra.mapper.TitularEntityMapper;
-import com.example.demo.infra.persistence.entity.TitularEntity;
 
 @Component
 public class JpaTitularRepositoryAdapter implements TitularRepositoryPort {
@@ -22,7 +21,7 @@ public class JpaTitularRepositoryAdapter implements TitularRepositoryPort {
 
     @Override
     public Optional<Titular> findById(UUID id) {
-        TitularEntity savedTitularEntity = jpaTitularRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Titular no encontrado"));
-        return Optional.of(titularEntityMapper.toDomainTitular(savedTitularEntity));
+        return jpaTitularRepository.findById(id)
+            .map(titularEntityMapper::toDomain);
     }
 }

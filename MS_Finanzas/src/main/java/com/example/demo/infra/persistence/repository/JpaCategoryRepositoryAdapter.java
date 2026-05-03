@@ -24,8 +24,8 @@ public class JpaCategoryRepositoryAdapter implements CategoryRepositoryPort {
 
     @Override
     public Optional<Category> findById(UUID categoryId) {
-        CategoryEntity savedCategoryEntity = jpaCategoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException("La categoria no fue encontrada"));
-        return Optional.of(categoryEntityMapper.toDomain(savedCategoryEntity));
+        return jpaCategoryRepository.findById(categoryId)
+            .map(categoryEntityMapper::toDomain);
     }
 
     @Override
@@ -43,18 +43,26 @@ public class JpaCategoryRepositoryAdapter implements CategoryRepositoryPort {
     @Override
     public Category update(UUID categoryId, Category category) {
         CategoryEntity existingCategoryEntity = jpaCategoryRepository.findById(categoryId)
-        .orElseThrow(() -> new ResourceNotFoundException("La categoria no fue encontrada"));
+            .orElseThrow(() -> new ResourceNotFoundException("La categoria no fue encontrada"));
         existingCategoryEntity.setNombre(category.nombre());
         CategoryEntity updatedCategoryEntity = jpaCategoryRepository.save(existingCategoryEntity);
         return categoryEntityMapper.toDomain(updatedCategoryEntity);
-
     }
 
     @Override
     public void deleteById(UUID categoryId) {
-        if (!jpaCategoryRepository.existsById(categoryId)) {
-            throw new ResourceNotFoundException("La categoria no fue encontrada");
-        }
         jpaCategoryRepository.deleteById(categoryId);
     }
+
+    @Override
+    public boolean existsByNameAndTitularId(String name, UUID titularId) {
+        return jpaCategoryRepository.existsByNombreIgnoreCaseAndTitular_TitularId(name, titularId);
+    }
+
+    @Override
+    public Optional<Category> findByNombreIgnoreCase(String nombre) {
+        return jpaCategoryRepository.findByNombreIgnoreCase(nombre)
+            .map(categoryEntityMapper::toDomain);
+    }
+
 }
