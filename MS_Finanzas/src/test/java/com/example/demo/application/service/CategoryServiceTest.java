@@ -1,4 +1,4 @@
-package com.example.demo.application.service;
+﻿package com.example.demo.application.service;
 
 import com.example.demo.application.repository.CategoryRepositoryPort;
 import com.example.demo.application.repository.TransactionRepositoryPort;
@@ -26,16 +26,11 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-/**
- * Pruebas unitarias para CategoryService
- * Cubre HU-05 — Crear una categoría personalizada
- */
 @ExtendWith(MockitoExtension.class)
 class CategoryServiceTest {
 
     @Mock private CategoryRepositoryPort categoryRepositoryPort;
     @Mock private TransactionRepositoryPort transactionRepositoryPort;
-
     @InjectMocks private CategoryService categoryService;
 
     private Titular titular;
@@ -44,23 +39,16 @@ class CategoryServiceTest {
     @BeforeEach
     void setUp() {
         titularId = UUID.randomUUID();
-        titular = new Titular(titularId, "Ana", "López", "García",
+        titular = new Titular(titularId, "Ana", "Lopez", "Garcia",
                 "3109876543", Instant.now(), "COP", "America/Bogota", "token-abc");
     }
 
-    // ─────────────────────────────────────────────────────────────────
-    // HU-05 — Crear una categoría personalizada
-    // ─────────────────────────────────────────────────────────────────
     @Nested
-    @DisplayName("HU-05 — Crear una categoría personalizada")
+    @DisplayName("HU-05 - Crear una categoria personalizada")
     class CrearCategoria {
 
-        /**
-         * CA-01 + CA-04 @happy-path
-         * Crear categoría exitosamente → aparece en listado y disponible al registrar transacciones.
-         */
         @Test
-        @DisplayName("CA-01 CA-04 — Crear categoría 'Transporte' exitosamente y disponible en listado")
+        @DisplayName("CA-01 CA-04 - Crear categoria Transporte exitosamente")
         void ca01_ca04_crearCategoriaExitosa() {
             Category nuevaCategoria = new Category(null, "Transporte", titular);
             Category guardada = new Category(UUID.randomUUID(), "Transporte", titular);
@@ -75,60 +63,43 @@ class CategoryServiceTest {
             assertThat(resultado.categoriaId()).isNotNull();
             assertThat(resultado.nombre()).isEqualTo("Transporte");
 
-            // Verificar disponibilidad en el listado
             List<Category> listado = categoryService.findAll();
             assertThat(listado).extracting(Category::nombre).contains("Transporte");
 
             verify(categoryRepositoryPort).save(any(Category.class));
         }
 
-        /**
-         * CA-02 @error-handling
-         * Nombre duplicado → lanza CategoryAlreadyExistsException, no crea categoría.
-         */
         @Test
-        @DisplayName("CA-02 — Nombre duplicado lanza CategoryAlreadyExistsException")
+        @DisplayName("CA-02 - Nombre duplicado lanza CategoryAlreadyExistsException")
         void ca02_nombreDuplicadoLanzaExcepcion() {
-            Category duplicada = new Category(null, "Alimentación", titular);
+            Category duplicada = new Category(null, "Alimentacion", titular);
 
-            when(categoryRepositoryPort.existsByNameAndTitularId("Alimentación", titularId)).thenReturn(true);
+            when(categoryRepositoryPort.existsByNameAndTitularId("Alimentacion", titularId)).thenReturn(true);
 
             assertThatThrownBy(() -> categoryService.addCategory(duplicada))
                     .isInstanceOf(CategoryAlreadyExistsException.class)
-                    .hasMessageContaining("Alimentación");
+                    .hasMessageContaining("Alimentacion");
 
             verify(categoryRepositoryPort, never()).save(any());
         }
 
-        /**
-         * CA-03 @error-handling
-         * Nombre vacío o en blanco → No llega al repositorio (validación Bean Validation en controller).
-         * En el servicio verificamos que si llegara, existsByNameAndTitularId retorna false y
-         * el save no se invoca con nombre vacío (la validación real es @NotBlank en el DTO).
-         * Aquí simulamos que el repositorio rechaza un nombre en blanco.
-         */
         @ParameterizedTest(name = "CA-03 | nombre en blanco=''{0}''")
         @ValueSource(strings = {"", "   "})
-        @DisplayName("CA-03 — Nombre vacío o en blanco no crea categoría")
+        @DisplayName("CA-03 - Nombre vacio o en blanco no crea categoria")
         void ca03_nombreVacioNoCrearCategoria(String nombreVacio) {
             Category invalida = new Category(null, nombreVacio, titular);
 
-            // existsByNameAndTitularId se llama con nombre vacío/blanco: retorna false
             when(categoryRepositoryPort.existsByNameAndTitularId(nombreVacio, titularId)).thenReturn(false);
-            // El repositorio lanza excepción al intentar guardar nombre inválido
             when(categoryRepositoryPort.save(any()))
-                    .thenThrow(new IllegalArgumentException("El nombre de la categoría es obligatorio"));
+                    .thenThrow(new IllegalArgumentException("El nombre de la categoria es obligatorio"));
 
             assertThatThrownBy(() -> categoryService.addCategory(invalida))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("nombre");
         }
 
-        /**
-         * Flujo de actualización — categoría no encontrada → ResourceNotFoundException.
-         */
         @Test
-        @DisplayName("Actualizar categoría inexistente lanza ResourceNotFoundException")
+        @DisplayName("Actualizar categoria inexistente lanza ResourceNotFoundException")
         void actualizarCategoriaNoExistente() {
             UUID idFalso = UUID.randomUUID();
             Category cat = new Category(null, "Nueva", titular);
@@ -142,20 +113,101 @@ class CategoryServiceTest {
             verify(categoryRepositoryPort, never()).update(any(), any());
         }
 
-        /**
-         * Eliminar categoría en uso → lanza CategoryInUseException.
-         */
         @Test
-        @DisplayName("Eliminar categoría en uso lanza CategoryInUseException")
+        @DisplayName("Eliminar categoria en uso lanza CategoryInUseException")
         void eliminarCategoriaEnUso() {
             UUID categoriaId = UUID.randomUUID();
-            Category catExistente = new Category(categoriaId, "Alimentación", titular);
+            Category catExistente = new Category(categoriaId, "Alimentacion", titular);
 
             when(categoryRepositoryPort.findById(categoriaId)).thenReturn(Optional.of(catExistente));
             when(transactionRepositoryPort.existsByCategoryId(categoriaId)).thenReturn(true);
 
             assertThatThrownBy(() -> categoryService.deleteCategoryById(categoriaId))
                     .isInstanceOf(com.example.demo.domain.exception.CategoryInUseException.class);
+
+            verify(categoryRepositoryPort, never()).deleteById(any());
+        }
+
+        @Test
+        @DisplayName("findById - retorna categoria existente")
+        void findById_retornaCategoriaExistente() {
+            UUID categoriaId = UUID.randomUUID();
+            Category cat = new Category(categoriaId, "Salud", titular);
+
+            when(categoryRepositoryPort.findById(categoriaId)).thenReturn(Optional.of(cat));
+
+            Optional<Category> resultado = categoryService.findById(categoriaId);
+
+            assertThat(resultado).isPresent();
+            assertThat(resultado.get().nombre()).isEqualTo("Salud");
+        }
+
+        @Test
+        @DisplayName("findById - retorna vacio si no existe")
+        void findById_retornaVacioSiNoExiste() {
+            UUID idFalso = UUID.randomUUID();
+            when(categoryRepositoryPort.findById(idFalso)).thenReturn(Optional.empty());
+
+            Optional<Category> resultado = categoryService.findById(idFalso);
+
+            assertThat(resultado).isEmpty();
+        }
+
+        @Test
+        @DisplayName("updateCategory - actualiza categoria exitosamente")
+        void updateCategory_exitoso() {
+            UUID categoriaId = UUID.randomUUID();
+            Category existente = new Category(categoriaId, "Viejo", titular);
+            Category actualizada = new Category(categoriaId, "Nuevo", titular);
+
+            when(categoryRepositoryPort.findById(categoriaId)).thenReturn(Optional.of(existente));
+            when(categoryRepositoryPort.existsByNameAndTitularId("Nuevo", titularId)).thenReturn(false);
+            when(categoryRepositoryPort.update(categoriaId, actualizada)).thenReturn(actualizada);
+
+            Category resultado = categoryService.updateCategory(categoriaId, actualizada);
+
+            assertThat(resultado.nombre()).isEqualTo("Nuevo");
+            verify(categoryRepositoryPort).update(categoriaId, actualizada);
+        }
+
+        @Test
+        @DisplayName("updateCategory - nombre duplicado lanza CategoryAlreadyExistsException")
+        void updateCategory_nombreDuplicado() {
+            UUID categoriaId = UUID.randomUUID();
+            Category existente = new Category(categoriaId, "Viejo", titular);
+            Category actualizada = new Category(categoriaId, "Duplicado", titular);
+
+            when(categoryRepositoryPort.findById(categoriaId)).thenReturn(Optional.of(existente));
+            when(categoryRepositoryPort.existsByNameAndTitularId("Duplicado", titularId)).thenReturn(true);
+
+            assertThatThrownBy(() -> categoryService.updateCategory(categoriaId, actualizada))
+                    .isInstanceOf(CategoryAlreadyExistsException.class);
+
+            verify(categoryRepositoryPort, never()).update(any(), any());
+        }
+
+        @Test
+        @DisplayName("deleteCategoryById - elimina categoria exitosamente")
+        void deleteCategoryById_exitoso() {
+            UUID categoriaId = UUID.randomUUID();
+            Category cat = new Category(categoriaId, "Entretenimiento", titular);
+
+            when(categoryRepositoryPort.findById(categoriaId)).thenReturn(Optional.of(cat));
+            when(transactionRepositoryPort.existsByCategoryId(categoriaId)).thenReturn(false);
+
+            categoryService.deleteCategoryById(categoriaId);
+
+            verify(categoryRepositoryPort).deleteById(categoriaId);
+        }
+
+        @Test
+        @DisplayName("deleteCategoryById - categoria inexistente lanza ResourceNotFoundException")
+        void deleteCategoryById_noExistente() {
+            UUID idFalso = UUID.randomUUID();
+            when(categoryRepositoryPort.findById(idFalso)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> categoryService.deleteCategoryById(idFalso))
+                    .isInstanceOf(ResourceNotFoundException.class);
 
             verify(categoryRepositoryPort, never()).deleteById(any());
         }
