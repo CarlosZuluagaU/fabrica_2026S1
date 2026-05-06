@@ -87,10 +87,10 @@ public class SavingGoalService implements AddSavingGoalUseCase, RetrieveSavingGo
         if (savingGoal.nombre() == null || savingGoal.nombre().trim().isEmpty())
             throw new IllegalArgumentException("El nombre es obligatorio");
 
-        if (!existingGoal.nombre().equals(savingGoal.nombre())) {
-            if (savingGoalRepositoryPort.existsByNombre(savingGoal.nombre()))
-                throw new DuplicateGoalNameException("Ya existe una meta con el nombre: " + savingGoal.nombre());
-        }
+        // Corrección correcta:
+        if (!existingGoal.nombre().equals(savingGoal.nombre())
+                && savingGoalRepositoryPort.existsByNombre(savingGoal.nombre()))
+            throw new DuplicateGoalNameException("Ya existe una meta con el nombre: " + savingGoal.nombre());
 
         if (savingGoal.montoObjetivo() == null || savingGoal.montoObjetivo() <= 0)
             throw new IllegalArgumentException("El monto debe ser mayor a 0");
