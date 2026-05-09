@@ -1,14 +1,12 @@
 package com.example.demo.infra.rest.dto;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.time.LocalDate;
-import java.time.Instant;
 import java.util.UUID;
 
-import com.example.demo.domain.model.GoalStatus;
-import com.example.demo.domain.model.Titular;
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
+
+import com.example.demo.domain.model.GoalStatus;
 
 class SavingGoalResponseTest {
 
