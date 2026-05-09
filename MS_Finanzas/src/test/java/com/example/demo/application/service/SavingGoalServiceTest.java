@@ -1,11 +1,13 @@
 package com.example.demo.application.service;
 
-import com.example.demo.application.repository.SavingGoalRepositoryPort;
-import com.example.demo.domain.exception.DuplicateGoalNameException;
-import com.example.demo.domain.exception.SavingGoalNotFoundException;
-import com.example.demo.domain.model.GoalStatus;
-import com.example.demo.domain.model.SavingGoal;
-import com.example.demo.domain.model.Titular;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -13,21 +15,22 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.example.demo.application.repository.SavingGoalRepositoryPort;
+import com.example.demo.domain.exception.DuplicateGoalNameException;
+import com.example.demo.domain.exception.SavingGoalNotFoundException;
+import com.example.demo.domain.model.GoalStatus;
+import com.example.demo.domain.model.SavingGoal;
+import com.example.demo.domain.model.Titular;
 
 @ExtendWith(MockitoExtension.class)
 class SavingGoalServiceTest {
