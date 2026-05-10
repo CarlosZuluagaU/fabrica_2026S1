@@ -58,6 +58,17 @@ Se separo la rama crear/actualizar en:
 
 Resultado: menor complejidad en `save` y mejor mantenibilidad.
 
+### 4) Ajuste Sonar/Maven para complejidad real de codigo productivo
+Archivo: `MS_Finanzas/pom.xml`
+
+Se corrigio la configuracion para evitar inflar la complejidad con codigo generado y boilerplate:
+- Se agrego `sonar.sources=src/main/java`.
+- Se agrego `sonar.tests=src/test/java`.
+- Se agrego `sonar.exclusions=**/target/**,**/generated/**,**/*MapperImpl.java,**/infra/mapper/**,**/infra/rest/dto/**,**/infra/persistence/entity/**`.
+- Se elimino `build-helper-maven-plugin` que agregaba `target/generated-sources/annotations` como source.
+
+Resultado: Sonar analiza la capa de logica de negocio y evita sobrecontar complejidad en codigo generado/boilerplate.
+
 ## Validacion ejecutada
 Se verifico compilacion del modulo despues de los cambios:
 
@@ -72,6 +83,9 @@ Resultado:
 - `MS_Finanzas/src/main/java/com/example/demo/application/service/SavingGoalService.java`
 - `MS_Finanzas/src/main/java/com/example/demo/application/service/TransactionService.java`
 - `MS_Finanzas/src/main/java/com/example/demo/infra/persistence/repository/JpaTransactionRepositoryAdapter.java`
+- `MS_Finanzas/pom.xml`
+- `.github/workflows/build.yml`
+- `README_REDUCCION_COMPLEJIDAD.md`
 
 ## Nota
 Para cuantificar el impacto exacto en Sonar (metrica de complejidad por metodo/proyecto), ejecutar analisis Sonar posterior a este commit y comparar contra baseline previo.

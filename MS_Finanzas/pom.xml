@@ -21,6 +21,9 @@
 		<lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
 		<sonar.organization>fabrica20261-calidad</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+		<sonar.sources>src/main/java</sonar.sources>
+		<sonar.tests>src/test/java</sonar.tests>
+		<sonar.exclusions>**/target/**,**/generated/**,**/*MapperImpl.java,**/infra/mapper/**,**/infra/rest/dto/**,**/infra/persistence/entity/**</sonar.exclusions>
 	</properties>
 
 	<dependencies>
@@ -130,26 +133,6 @@
 						</path>
 					</annotationProcessorPaths>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>3.2.0</version>
-				<executions>
-					<execution>
-						<id>add-source</id>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>add-source</goal>
-						</goals>
-						<configuration>
-							<sources>
-								<source>${project.build.directory}/generated-sources/annotations</source>
-								<source>${project.basedir}/src/main/java/com/example/demo/infra/rest/dto</source>
-							</sources>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 			<plugin>
             <groupId>org.jacoco</groupId>
