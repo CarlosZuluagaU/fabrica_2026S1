@@ -92,15 +92,19 @@ public class TransactionService implements
     }
 
     private Category resolveCategory(Category categoriaPartial) {
-        if (categoriaPartial != null && categoriaPartial.categoriaId() != null) {
-            return categoryRepositoryPort.findById(categoriaPartial.categoriaId())
-                .orElseThrow(() -> new ResourceNotFoundException("Categoría no encontrada"));
-        }
-        
+        return Optional.ofNullable(categoriaPartial)
+            .map(Category::categoriaId)
+            .map(this::findCategoryById)
+            .orElseGet(this::findOrCreateEmptyCategory);
+    }
+
+    private Category findCategoryById(UUID categoryId) {
+        return categoryRepositoryPort.findById(categoryId)
+            .orElseThrow(() -> new ResourceNotFoundException("Categoría no encontrada"));
+    }
+
+    private Category findOrCreateEmptyCategory() {
         return categoryRepositoryPort.findByNombreIgnoreCase(EmptyCategoryConstants.NAME)
-            .orElseGet(() -> {
-                Category emptyCategory = new Category(null, EmptyCategoryConstants.NAME, null);
-                return categoryRepositoryPort.save(emptyCategory);
-            });
+            .orElseGet(() -> categoryRepositoryPort.save(new Category(null, EmptyCategoryConstants.NAME, null)));
     }
 }

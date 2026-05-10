@@ -35,23 +35,7 @@ public class SavingGoalService implements AddSavingGoalUseCase, RetrieveSavingGo
     public SavingGoal addSavingGoal(SavingGoal savingGoal) {
         log.info("=== VALIDACIONES DE SERVICIO ===");
 
-        if (savingGoal == null)
-            throw new IllegalArgumentException("La meta no puede ser nula");
-
-        if (savingGoal.nombre() == null || savingGoal.nombre().trim().isEmpty())
-            throw new IllegalArgumentException("El nombre es obligatorio");
-
-        if (savingGoal.montoObjetivo() == null || savingGoal.montoObjetivo() <= 0)
-            throw new IllegalArgumentException("El monto debe ser mayor a 0");
-
-        if (savingGoal.fechaLimite() != null && !savingGoal.fechaLimite().isAfter(LocalDate.now()))
-            throw new IllegalArgumentException("La fecha límite debe ser una fecha futura");
-
-        if (savingGoal.titular() == null || savingGoal.titular().titularId() == null)
-            throw new IllegalArgumentException("El titular es obligatorio");
-
-        if (savingGoalRepositoryPort.existsByNombre(savingGoal.nombre()))
-            throw new DuplicateGoalNameException("Ya existe una meta con el nombre: " + savingGoal.nombre());
+        validateNewGoal(savingGoal);
 
         log.info("=== TODAS LAS VALIDACIONES PASARON ===");
 
@@ -84,19 +68,8 @@ public class SavingGoalService implements AddSavingGoalUseCase, RetrieveSavingGo
                 .orElseThrow(() -> new SavingGoalNotFoundException(
                         "Meta de ahorro no encontrada con ID: " + goalId));
 
-        if (savingGoal.nombre() == null || savingGoal.nombre().trim().isEmpty())
-            throw new IllegalArgumentException("El nombre es obligatorio");
-
-        // Corrección correcta:
-        if (!existingGoal.nombre().equals(savingGoal.nombre())
-                && savingGoalRepositoryPort.existsByNombre(savingGoal.nombre()))
-            throw new DuplicateGoalNameException("Ya existe una meta con el nombre: " + savingGoal.nombre());
-
-        if (savingGoal.montoObjetivo() == null || savingGoal.montoObjetivo() <= 0)
-            throw new IllegalArgumentException("El monto debe ser mayor a 0");
-
-        if (savingGoal.fechaLimite() != null && !savingGoal.fechaLimite().isAfter(LocalDate.now()))
-            throw new IllegalArgumentException("La fecha límite debe ser una fecha futura");
+        validateGoalPayload(savingGoal);
+        validateUniqueNameOnUpdate(existingGoal, savingGoal.nombre());
 
         SavingGoal updatedGoal = new SavingGoal(
                 goalId,
@@ -116,5 +89,48 @@ public class SavingGoalService implements AddSavingGoalUseCase, RetrieveSavingGo
                 .orElseThrow(() -> new SavingGoalNotFoundException(
                         "Meta de ahorro no encontrada con ID: " + goalId));
         savingGoalRepositoryPort.deleteById(goalId);
+    }
+
+    private void validateNewGoal(SavingGoal savingGoal) {
+        if (savingGoal == null) {
+            throw new IllegalArgumentException("La meta no puede ser nula");
+        }
+        validateGoalPayload(savingGoal);
+        if (savingGoal.titular() == null || savingGoal.titular().titularId() == null) {
+            throw new IllegalArgumentException("El titular es obligatorio");
+        }
+        validateUniqueName(savingGoal.nombre());
+    }
+
+    private void validateGoalPayload(SavingGoal savingGoal) {
+        if (isBlank(savingGoal.nombre())) {
+            throw new IllegalArgumentException("El nombre es obligatorio");
+        }
+        if (savingGoal.montoObjetivo() == null || savingGoal.montoObjetivo() <= 0) {
+            throw new IllegalArgumentException("El monto debe ser mayor a 0");
+        }
+        validateFutureDate(savingGoal.fechaLimite());
+    }
+
+    private void validateUniqueNameOnUpdate(SavingGoal existingGoal, String newName) {
+        if (!existingGoal.nombre().equals(newName)) {
+            validateUniqueName(newName);
+        }
+    }
+
+    private void validateUniqueName(String name) {
+        if (savingGoalRepositoryPort.existsByNombre(name)) {
+            throw new DuplicateGoalNameException("Ya existe una meta con el nombre: " + name);
+        }
+    }
+
+    private void validateFutureDate(LocalDate fechaLimite) {
+        if (fechaLimite != null && !fechaLimite.isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException("La fecha límite debe ser una fecha futura");
+        }
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
     }
 }

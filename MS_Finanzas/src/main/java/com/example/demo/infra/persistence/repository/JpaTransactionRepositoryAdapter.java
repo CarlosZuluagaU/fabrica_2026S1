@@ -43,11 +43,7 @@ public class JpaTransactionRepositoryAdapter implements TransactionRepositoryPor
     public List<Transaction> findAll(TransactionListFilter filter) {
         var tipo = filter.tipo().orElse(null);
         var categoriaId = filter.categoriaId().orElse(null);
-        LocalDate[] range = new LocalDate[2];
-        filter.mes().ifPresent(ym -> {
-            range[0] = ym.atDay(1);
-            range[1] = ym.atEndOfMonth();
-        });
+        LocalDate[] range = resolveDateRange(filter.mes());
         LocalDate desde = range[0];
         LocalDate hasta = range[1];
         return jpaTransactionRepository.findFiltered(tipo, categoriaId, desde, hasta)
@@ -64,19 +60,7 @@ public class JpaTransactionRepositoryAdapter implements TransactionRepositoryPor
 
     @Override
     public Transaction save(Transaction transaction) {
-        TransactionEntity entity;
-        if (transaction.transactionId() != null) {
-            entity = jpaTransactionRepository.findById(transaction.transactionId())
-                .orElseThrow(() -> new ResourceNotFoundException("Transacción no encontrada"));
-            entity.setNombre(transaction.nombre());
-            entity.setDescripcion(transaction.descripcion());
-            entity.setMonto(transaction.monto());
-            entity.setTipo(transaction.tipo());
-            entity.setFecha(transaction.fecha());
-        } else {
-            entity = transactionEntityMapper.toEntity(transaction);
-            entity.setFecha(transaction.fecha());
-        }
+        TransactionEntity entity = resolveEntityForSave(transaction);
         attachRelations(entity, transaction);
         TransactionEntity saved = jpaTransactionRepository.save(entity);
         return transactionEntityMapper.toDomain(saved);
@@ -103,6 +87,39 @@ public class JpaTransactionRepositoryAdapter implements TransactionRepositoryPor
             .orElseThrow(() -> new ResourceNotFoundException("Titular no encontrado"));
         entity.setCategoria(category);
         entity.setTitular(titular);
+    }
+
+    private LocalDate[] resolveDateRange(Optional<YearMonth> monthFilter) {
+        return monthFilter
+            .map(month -> new LocalDate[] { month.atDay(1), month.atEndOfMonth() })
+            .orElseGet(() -> new LocalDate[] { null, null });
+    }
+
+    private TransactionEntity resolveEntityForSave(Transaction transaction) {
+        return Optional.ofNullable(transaction.transactionId())
+            .map(id -> loadEntityForUpdate(id, transaction))
+            .orElseGet(() -> createEntityForInsert(transaction));
+    }
+
+    private TransactionEntity loadEntityForUpdate(UUID transactionId, Transaction transaction) {
+        TransactionEntity entity = jpaTransactionRepository.findById(transactionId)
+            .orElseThrow(() -> new ResourceNotFoundException("Transacción no encontrada"));
+        updateEntityFields(entity, transaction);
+        return entity;
+    }
+
+    private TransactionEntity createEntityForInsert(Transaction transaction) {
+        TransactionEntity entity = transactionEntityMapper.toEntity(transaction);
+        entity.setFecha(transaction.fecha());
+        return entity;
+    }
+
+    private void updateEntityFields(TransactionEntity entity, Transaction transaction) {
+        entity.setNombre(transaction.nombre());
+        entity.setDescripcion(transaction.descripcion());
+        entity.setMonto(transaction.monto());
+        entity.setTipo(transaction.tipo());
+        entity.setFecha(transaction.fecha());
     }
 
     @Override
