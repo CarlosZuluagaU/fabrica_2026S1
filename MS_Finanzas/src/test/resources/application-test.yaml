@@ -1,18 +1,27 @@
 spring:
-  datasource:
-    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: 
-  jpa:
-    hibernate:
-      ddl-auto: create-drop
-    show-sql: false
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.H2Dialect
+  config:
+    import: "optional:configserver:"
   cloud:
     config:
       enabled: false
-server:
-  port: 0
+    discovery:
+      enabled: false
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+
+  h2:
+    console:
+      enabled: true
+
+jwt:
+  secret: dGVzdFNlY3JldEtleUZvclVuaXRUZXN0c09ubHlOb3RGb3JQcm9kdWN0aW9uVXNlMTIzNDU2Nzg=

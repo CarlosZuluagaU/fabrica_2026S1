@@ -2,6 +2,7 @@ package com.example.demo.infra.persistence.repository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -42,15 +43,10 @@ public class JpaTransactionRepositoryAdapter implements TransactionRepositoryPor
     public List<Transaction> findAll(TransactionListFilter filter) {
         var tipo = filter.tipo().orElse(null);
         var categoriaId = filter.categoriaId().orElse(null);
-        var titularId = filter.titularId().orElse(null);
-        LocalDate desde = null;
-        LocalDate hasta = null;
-        if (filter.mes().isPresent()) {
-            var ym = filter.mes().get();
-            desde = ym.atDay(1);
-            hasta = ym.atEndOfMonth();
-        }
-        return jpaTransactionRepository.findFiltered(tipo, categoriaId, titularId, desde, hasta)
+        LocalDate[] range = resolveDateRange(filter.mes());
+        LocalDate desde = range[0];
+        LocalDate hasta = range[1];
+        return jpaTransactionRepository.findFiltered(tipo, categoriaId, desde, hasta)
             .stream()
             .map(transactionEntityMapper::toDomain)
             .toList();
@@ -64,19 +60,7 @@ public class JpaTransactionRepositoryAdapter implements TransactionRepositoryPor
 
     @Override
     public Transaction save(Transaction transaction) {
-        TransactionEntity entity;
-        if (transaction.transactionId() != null) {
-            entity = jpaTransactionRepository.findById(transaction.transactionId())
-                .orElseThrow(() -> new ResourceNotFoundException("Transacción no encontrada"));
-            entity.setNombre(transaction.nombre());
-            entity.setDescripcion(transaction.descripcion());
-            entity.setMonto(transaction.monto());
-            entity.setTipo(transaction.tipo());
-            entity.setFecha(transaction.fecha());
-        } else {
-            entity = transactionEntityMapper.toEntity(transaction);
-            entity.setFecha(transaction.fecha());
-        }
+        TransactionEntity entity = resolveEntityForSave(transaction);
         attachRelations(entity, transaction);
         TransactionEntity saved = jpaTransactionRepository.save(entity);
         return transactionEntityMapper.toDomain(saved);
@@ -105,6 +89,39 @@ public class JpaTransactionRepositoryAdapter implements TransactionRepositoryPor
         entity.setTitular(titular);
     }
 
+    private LocalDate[] resolveDateRange(Optional<YearMonth> monthFilter) {
+        return monthFilter
+            .map(month -> new LocalDate[] { month.atDay(1), month.atEndOfMonth() })
+            .orElseGet(() -> new LocalDate[] { null, null });
+    }
+
+    private TransactionEntity resolveEntityForSave(Transaction transaction) {
+        return Optional.ofNullable(transaction.transactionId())
+            .map(id -> loadEntityForUpdate(id, transaction))
+            .orElseGet(() -> createEntityForInsert(transaction));
+    }
+
+    private TransactionEntity loadEntityForUpdate(UUID transactionId, Transaction transaction) {
+        TransactionEntity entity = jpaTransactionRepository.findById(transactionId)
+            .orElseThrow(() -> new ResourceNotFoundException("Transacción no encontrada"));
+        updateEntityFields(entity, transaction);
+        return entity;
+    }
+
+    private TransactionEntity createEntityForInsert(Transaction transaction) {
+        TransactionEntity entity = transactionEntityMapper.toEntity(transaction);
+        entity.setFecha(transaction.fecha());
+        return entity;
+    }
+
+    private void updateEntityFields(TransactionEntity entity, Transaction transaction) {
+        entity.setNombre(transaction.nombre());
+        entity.setDescripcion(transaction.descripcion());
+        entity.setMonto(transaction.monto());
+        entity.setTipo(transaction.tipo());
+        entity.setFecha(transaction.fecha());
+    }
+
     @Override
     public BigDecimal sumByTitularAndType(UUID titularId, TypeTransaction type) {
         return jpaTransactionRepository.sumByTitularAndType(titularId, type);
@@ -117,17 +134,9 @@ public class JpaTransactionRepositoryAdapter implements TransactionRepositoryPor
     }
 
     @Override
-    public List<Transaction> findFiltered(TypeTransaction tipo, UUID categoriaId, UUID titularId, LocalDate desde,
-            LocalDate hasta) {
-        return jpaTransactionRepository.findFiltered(tipo, categoriaId, titularId, desde, hasta)
-            .stream()
-            .map(transactionEntityMapper::toDomain)
-            .toList();
-    }
-
-    @Override
-    public BigDecimal sumByTitularAndTypeAndDateRange(UUID titularId, TypeTransaction type, LocalDate fechaInicio, LocalDate fechaFinal) {
-        return jpaTransactionRepository.sumByTitularAndTypeAndDateRange(titularId, type, fechaInicio, fechaFinal);
+    public BigDecimal sumByTitularAndTypeAndDateRange(UUID titularId, TypeTransaction type,
+            java.time.LocalDate from, java.time.LocalDate to) {
+        return jpaTransactionRepository.sumByTitularAndTypeAndDateRange(titularId, type, from, to);
     }
 
 }

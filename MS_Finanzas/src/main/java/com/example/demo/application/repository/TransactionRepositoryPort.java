@@ -1,10 +1,11 @@
 package com.example.demo.application.repository;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import java.time.LocalDate;
 
 import com.example.demo.application.query.TransactionListFilter;
 import com.example.demo.domain.model.Transaction;
@@ -26,13 +27,6 @@ public interface TransactionRepositoryPort {
     
     BigDecimal sumByTitularAndTypeAndMonth(UUID titularId, TypeTransaction type, Integer mes, Integer anho);
 
-    BigDecimal sumByTitularAndTypeAndDateRange(UUID titularId, TypeTransaction type, LocalDate fechaInicio, LocalDate fechaFinal);
+    BigDecimal sumByTitularAndTypeAndDateRange(UUID titularId, TypeTransaction type, LocalDate from, LocalDate to);
 
-    List<Transaction> findFiltered(
-        TypeTransaction tipo,
-        UUID categoriaId,
-        UUID titularId,
-        LocalDate desde,
-        LocalDate hasta
-    );
 }

@@ -26,7 +26,6 @@ public interface JpaTransactionRepository extends JpaRepository<TransactionEntit
         SELECT t FROM TransactionEntity t
         WHERE (:tipo IS NULL OR t.tipo = :tipo)
             AND (:categoriaId IS NULL OR t.categoria.categoriaId = :categoriaId)
-            AND (:titularId IS NULL OR t.titular.titularId = :titularId)
             AND (:desde IS NULL OR t.fecha >= :desde)
             AND (:hasta IS NULL OR t.fecha <= :hasta)
         ORDER BY t.fecha DESC, t.transactionId DESC
@@ -34,7 +33,6 @@ public interface JpaTransactionRepository extends JpaRepository<TransactionEntit
     List<TransactionEntity> findFiltered(
         @Param("tipo") TypeTransaction tipo,
         @Param("categoriaId") UUID categoriaId,
-        @Param("titularId") UUID titularId,
         @Param("desde") LocalDate desde,
         @Param("hasta") LocalDate hasta
     );
@@ -66,17 +64,17 @@ public interface JpaTransactionRepository extends JpaRepository<TransactionEntit
     );
 
     @Query("""
-    SELECT COALESCE(SUM(t.monto), 0)
-    FROM TransactionEntity t
-    WHERE t.titular.titularId = :titularId
-        AND t.tipo = :tipo
-        AND t.fecha >= :fechaInicio
-        AND t.fecha <= :fechaFinal
-    """)
+        SELECT COALESCE(SUM(t.monto), 0)
+        FROM TransactionEntity t
+        WHERE t.titular.titularId = :titularId
+            AND t.tipo = :tipo
+            AND t.fecha >= :from
+            AND t.fecha <= :to
+        """)
     BigDecimal sumByTitularAndTypeAndDateRange(
         @Param("titularId") UUID titularId,
         @Param("tipo") TypeTransaction tipo,
-        @Param("fechaInicio") LocalDate fechaInicio,
-        @Param("fechaFinal") LocalDate fechaFinal
+        @Param("from") LocalDate from,
+        @Param("to") LocalDate to
     );
 }
