@@ -22,3 +22,6 @@ spring:
   h2:
     console:
       enabled: true
+
+jwt:
+  secret: dGVzdFNlY3JldEtleUZvclVuaXRUZXN0c09ubHlOb3RGb3JQcm9kdWN0aW9uVXNlMTIzNDU2Nzg=
