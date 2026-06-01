@@ -62,4 +62,19 @@ public interface JpaTransactionRepository extends JpaRepository<TransactionEntit
         @Param("titularId") UUID titularId,
         @Param("tipo") TypeTransaction tipo
     );
+
+    @Query("""
+        SELECT COALESCE(SUM(t.monto), 0)
+        FROM TransactionEntity t
+        WHERE t.titular.titularId = :titularId
+            AND t.tipo = :tipo
+            AND t.fecha >= :from
+            AND t.fecha <= :to
+        """)
+    BigDecimal sumByTitularAndTypeAndDateRange(
+        @Param("titularId") UUID titularId,
+        @Param("tipo") TypeTransaction tipo,
+        @Param("from") LocalDate from,
+        @Param("to") LocalDate to
+    );
 }

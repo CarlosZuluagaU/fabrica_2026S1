@@ -24,4 +24,21 @@ public class JpaTitularRepositoryAdapter implements TitularRepositoryPort {
         return jpaTitularRepository.findById(id)
             .map(titularEntityMapper::toDomain);
     }
+
+    @Override
+    public Titular save(Titular titular) {
+        return titularEntityMapper.toDomain(
+            jpaTitularRepository.save(titularEntityMapper.toEntity(titular)));
+    }
+
+    @Override
+    public Titular update(UUID id, Titular titular) {
+        return titularEntityMapper.toDomain(
+            jpaTitularRepository.save(titularEntityMapper.toEntity(titular)));
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        jpaTitularRepository.deleteById(id);
+    }
 }

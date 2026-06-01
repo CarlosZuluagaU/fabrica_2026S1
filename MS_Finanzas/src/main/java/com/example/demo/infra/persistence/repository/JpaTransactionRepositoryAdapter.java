@@ -133,5 +133,11 @@ public class JpaTransactionRepositoryAdapter implements TransactionRepositoryPor
         return jpaTransactionRepository.sumByTitularAndTypeAndMonth(titularId, type, mes, anho);
     }
 
+    @Override
+    public BigDecimal sumByTitularAndTypeAndDateRange(UUID titularId, TypeTransaction type,
+            java.time.LocalDate from, java.time.LocalDate to) {
+        return jpaTransactionRepository.sumByTitularAndTypeAndDateRange(titularId, type, from, to);
+    }
+
 }
 

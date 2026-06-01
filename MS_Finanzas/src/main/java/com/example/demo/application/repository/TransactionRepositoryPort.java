@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import java.time.LocalDate;
+
 import com.example.demo.application.query.TransactionListFilter;
 import com.example.demo.domain.model.Transaction;
 import com.example.demo.domain.model.TypeTransaction;
@@ -24,5 +26,7 @@ public interface TransactionRepositoryPort {
     BigDecimal sumByTitularAndType(UUID titularId, TypeTransaction type);
     
     BigDecimal sumByTitularAndTypeAndMonth(UUID titularId, TypeTransaction type, Integer mes, Integer anho);
+
+    BigDecimal sumByTitularAndTypeAndDateRange(UUID titularId, TypeTransaction type, LocalDate from, LocalDate to);
 
 }
