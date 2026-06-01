@@ -1,26 +1,43 @@
 package com.example.demo.infra.rest.dto;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.time.LocalDate;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
-
-import com.example.demo.domain.model.GoalStatus;
 
 class SavingGoalResponseTest {
 
     @Test
-    void getPorcentajeAvance_shouldReturnZeroWhenMontoNotPositive() {
-        SavingGoalResponse response = new SavingGoalResponse(UUID.randomUUID(), "Vacaciones", 0.0, 0.0, GoalStatus.EN_PROGRESO.name(), LocalDate.now(), UUID.randomUUID(), "Ana");
+    void calcularPorcentajeAvance() {
+        SavingGoalResponse response = new SavingGoalResponse(
+            UUID.randomUUID(),
+            "Viaje",
+            1000.0,
+            250.0,
+            "EN_PROGRESO",
+            LocalDate.now().plusMonths(3),
+            UUID.randomUUID(),
+            "Luis"
+        );
 
-        assertThat(response.getPorcentajeAvance()).isEqualTo(0.0);
+        assertEquals(25.0, response.getPorcentajeAvance());
     }
 
     @Test
-    void getPorcentajeAvance_shouldCalculateCorrectly() {
-        SavingGoalResponse response = new SavingGoalResponse(UUID.randomUUID(), "Vacaciones", 1000.0, 500.0, GoalStatus.EN_PROGRESO.name(), LocalDate.now(), UUID.randomUUID(), "Ana");
+    void calcularPorcentajeAvance_shouldReturnZeroWhenMontoInvalido() {
+        SavingGoalResponse response = new SavingGoalResponse(
+            UUID.randomUUID(),
+            "Viaje",
+            0.0,
+            100.0,
+            "EN_PROGRESO",
+            null,
+            UUID.randomUUID(),
+            "Luis"
+        );
 
-        assertThat(response.getPorcentajeAvance()).isEqualTo(50.0);
+        assertEquals(0.0, response.getPorcentajeAvance());
     }
 }

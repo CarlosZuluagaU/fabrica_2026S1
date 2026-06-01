@@ -7,10 +7,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 public record SavingGoalRequest(
 
-    @Schema(description = "Nombre de la meta de ahorro", example = "Viaje a Cuba")
+    @Schema(description = "Nombre de la meta de ahorro", example = "Viaje a Cuba", requiredMode=Schema.RequiredMode.REQUIRED)
     String nombre,
 
-    @Schema(description = "Monto objetivo en pesos colombianos", example = "12000000")
+    @Schema(description = "Monto objetivo en pesos colombianos", example = "12000000", requiredMode=Schema.RequiredMode.REQUIRED)
     Double montoObjetivo,
 
     @Schema(description = "Fecha límite para alcanzar la meta (formato YYYY-MM-DD), opcional", example = "2026-12-31")
@@ -18,7 +18,8 @@ public record SavingGoalRequest(
 
     @Schema(
         description = "ID del titular financiero (debe existir en la base de datos)",
-        example = "aa8a8b1d-e583-4168-97f6-64e6a6986397"
+        example = "aa8a8b1d-e583-4168-97f6-64e6a6986397",
+        requiredMode=Schema.RequiredMode.REQUIRED
     )
     UUID titularId
 
