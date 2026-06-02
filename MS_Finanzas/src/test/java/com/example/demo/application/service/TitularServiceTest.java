@@ -1,25 +1,29 @@
 package com.example.demo.application.service;
 
-import com.example.demo.application.repository.TitularRepositoryPort;
-import com.example.demo.domain.model.Titular;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
+
+import java.time.Instant;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.Instant;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import com.example.demo.application.repository.TitularRepositoryPort;
+import com.example.demo.domain.exception.ResourceNotFoundException;
+import com.example.demo.domain.model.Titular;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("TitularService - pruebas unitarias")
 class TitularServiceTest {
 
     @Mock
@@ -30,101 +34,95 @@ class TitularServiceTest {
 
     private UUID titularId;
     private Titular titular;
+    private Titular titularSinId;
 
     @BeforeEach
     void setUp() {
         titularId = UUID.randomUUID();
-        titular = new Titular(titularId, "Ana", "Lopez", "Garcia",
-                "3109876543", Instant.now(), "COP", "America/Bogota", "token-abc");
+        titular = new Titular(
+            titularId,
+            "Ana",
+            "Pérez",
+            "Gómez",
+            "3001234567",
+            Instant.now(),
+            "COP",
+            "America/Bogota",
+            "token-existente"
+        );
+        titularSinId = new Titular(
+            null,
+            "Ana",
+            "Pérez",
+            "Gómez",
+            "3001234567",
+            null,
+            "COP",
+            "America/Bogota",
+            null
+        );
     }
 
-    @Nested
-    @DisplayName("Buscar Titular por ID")
-    class BuscarTitularPorId {
-        
-        @Test
-        @DisplayName("findById - retorna titular existente")
-        void findById_retornaTitularExistente() {
-            when(titularRepositoryPort.findById(titularId)).thenReturn(Optional.of(titular));
+    @Test
+    void crearTitularExitoso() {
+        given(titularRepositoryPort.save(any(Titular.class))).willAnswer(inv -> {
+            Titular t = inv.getArgument(0);
+            return new Titular(
+                titularId,
+                t.nombre(),
+                t.primerApellido(),
+                t.segundoApellido(),
+                t.telefono(),
+                t.fechaRegistro(),
+                t.monedaPreferida(),
+                t.zonaHoraria(),
+                t.token()
+            );
+        });
 
-            Optional<Titular> resultado = titularService.findById(titularId);
+        Titular created = titularService.createTitular(titularSinId);
 
-            assertThat(resultado).hasValueSatisfying(t -> {
-                assertThat(t.titularId()).isEqualTo(titularId);
-                assertThat(t.nombre()).isEqualTo("Ana");
-                assertThat(t.primerApellido()).isEqualTo("Lopez");
-            });
-        }
-
-        @Test
-        @DisplayName("findById - retorna vacio si titular no existe")
-        void findById_retornaVacioSiNoExiste() {
-            UUID idFalso = UUID.randomUUID();
-            when(titularRepositoryPort.findById(idFalso)).thenReturn(Optional.empty());
-
-            Optional<Titular> resultado = titularService.findById(idFalso);
-
-            assertThat(resultado).isEmpty();
-        }
-
-        @Test
-        @DisplayName("findById - valida estructura del titular")
-        void findById_validaEstructuraTitular() {
-            when(titularRepositoryPort.findById(titularId)).thenReturn(Optional.of(titular));
-
-            Optional<Titular> resultado = titularService.findById(titularId);
-
-            assertThat(resultado).isPresent()
-                    .hasValueSatisfying(t -> {
-                        assertThat(t.nombre()).isNotBlank();
-                        assertThat(t.telefono()).isNotBlank();
-                        assertThat(t.monedaPreferida()).isNotBlank();
-                        assertThat(t.zonaHoraria()).isNotBlank();
-                        assertThat(t.token()).isNotBlank();
-                    });
-        }
+        assertEquals("Ana", created.nombre());
+        assertNotNull(created.token());
+        verify(titularRepositoryPort).save(any(Titular.class));
     }
 
-    @Nested
-    @DisplayName("Validaciones de Titular")
-    class ValidacionesTitular {
+    @Test
+    void actualizarTitularExitoso() {
+        Titular updatePayload = new Titular(
+            null,
+            "Ana María",
+            "Pérez",
+            "Gómez",
+            "3009998877",
+            null,
+            "USD",
+            "America/New_York",
+            null
+        );
+        given(titularRepositoryPort.findById(titularId)).willReturn(Optional.of(titular));
+        given(titularRepositoryPort.update(eq(titularId), any(Titular.class))).willAnswer(inv -> inv.getArgument(1));
 
-        @Test
-        @DisplayName("Verificar datos de titular con moneda COP")
-        void titularConMonedaCOP() {
-            Titular titularCOP = new Titular(UUID.randomUUID(), "Carlos", "Mora", "Vargas",
-                    "3001234567", Instant.now(), "COP", "America/Bogota", "token-1");
+        Titular updated = titularService.updateTitular(titularId, updatePayload);
 
-            when(titularRepositoryPort.findById(titularCOP.titularId())).thenReturn(Optional.of(titularCOP));
+        assertEquals("Ana María", updated.nombre());
+        assertEquals("USD", updated.monedaPreferida());
+        verify(titularRepositoryPort).update(eq(titularId), any(Titular.class));
+    }
 
-            Optional<Titular> resultado = titularService.findById(titularCOP.titularId());
+    @Test
+    void eliminarTitularExitoso() {
+        given(titularRepositoryPort.findById(titularId)).willReturn(Optional.of(titular));
 
-            assertThat(resultado).hasValueSatisfying(t -> assertThat(t.monedaPreferida()).isEqualTo("COP"));
-        }
+        titularService.deleteTitular(titularId);
 
-        @Test
-        @DisplayName("Verificar zona horaria válida")
-        void titularConZonaHorariaValida() {
-            Titular titularBogota = new Titular(UUID.randomUUID(), "Juan", "Perez", "Gomez",
-                    "3105555555", Instant.now(), "COP", "America/Bogota", "token-2");
+        verify(titularRepositoryPort).deleteById(titularId);
+    }
 
-            when(titularRepositoryPort.findById(titularBogota.titularId())).thenReturn(Optional.of(titularBogota));
+    @Test
+    void eliminarTitular_shouldThrowWhenNotFound() {
+        given(titularRepositoryPort.findById(titularId)).willReturn(Optional.empty());
 
-            Optional<Titular> resultado = titularService.findById(titularBogota.titularId());
-
-            assertThat(resultado).hasValueSatisfying(t -> assertThat(t.zonaHoraria()).isEqualTo("America/Bogota"));
-        }
-
-        @Test
-        @DisplayName("Verificar teléfono no vacío")
-        void titularConTelefonoValido() {
-            assertThat(titular.telefono()).isNotBlank();
-        }
-
-        @Test
-        @DisplayName("Verificar token no vacío")
-        void titularConTokenValido() {
-            assertThat(titular.token()).isNotBlank();
-        }
+        assertThrows(ResourceNotFoundException.class, () -> titularService.deleteTitular(titularId));
     }
 }

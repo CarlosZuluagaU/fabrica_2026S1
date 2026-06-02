@@ -16,7 +16,7 @@ import com.example.demo.infra.rest.dto.ReportResponse;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/reports")
+@RequestMapping("/api/v1/reports")
 public class ReportController {
     private final ReportService reportService;
     private final ReportResponseMapper reportResponseMapper;

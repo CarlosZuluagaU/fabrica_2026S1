@@ -1,6 +1,4 @@
 {
-    "files.associations": {
-        "plyconfig.json": "jsonc"
-    },
+    "java.compile.nullAnalysis.mode": "automatic",
     "java.configuration.updateBuildConfiguration": "interactive"
 }

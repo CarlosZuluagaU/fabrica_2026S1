@@ -4,6 +4,7 @@ import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +30,7 @@ import com.example.demo.infra.rest.dto.TransactionResponse;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/transactions")
+@RequestMapping("/api/v1/transactions")
 public class TransactionController {
 
     private final TransactionService transactionService;
@@ -50,17 +51,19 @@ public class TransactionController {
     public ResponseEntity<List<TransactionResponse>> list(
         @RequestParam(required = false) TypeTransaction tipo,
         @RequestParam(required = false) UUID categoriaId,
-        @RequestParam(required = false) String mes
+        @RequestParam(required = false) String mes,
+        @RequestParam(required = false) UUID titularId
     ) {
         Optional<YearMonth> yearMonth = Optional.ofNullable(mes).filter(s -> !s.isBlank()).map(YearMonth::parse);
         TransactionListFilter filter = new TransactionListFilter(
             Optional.ofNullable(tipo),
             Optional.ofNullable(categoriaId),
-            yearMonth
+            yearMonth,
+            Optional.ofNullable(titularId)
         );
         List<Transaction> transactions = transactionService.findAll(filter);
         return ResponseEntity.ok(
-            transactions.stream().map(transactionResponseMapper::toResponse).toList()
+            transactions.stream().map(transactionResponseMapper::toResponse).collect(Collectors.toList())
         );
     }
 
