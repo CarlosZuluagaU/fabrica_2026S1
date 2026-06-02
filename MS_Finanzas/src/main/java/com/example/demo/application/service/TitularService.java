@@ -1,11 +1,13 @@
 package com.example.demo.application.service;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
 import com.example.demo.application.repository.TitularRepositoryPort;
+
 import com.example.demo.application.usecase.CreateTitularUseCase;
 import com.example.demo.application.usecase.DeleteTitularUseCase;
 import com.example.demo.application.usecase.GetTitularUseCase;
@@ -29,7 +31,18 @@ public class TitularService implements GetTitularUseCase, CreateTitularUseCase, 
 
     @Override
     public Titular createTitular(Titular titular) {
-        return titularRepositoryPort.save(titular);
+        Titular prepared = new Titular(
+            titular.titularId(),
+            titular.nombre(),
+            titular.primerApellido(),
+            titular.segundoApellido(),
+            titular.telefono(),
+            titular.fechaRegistro() != null ? titular.fechaRegistro() : Instant.now(),
+            titular.monedaPreferida(),
+            titular.zonaHoraria(),
+            titular.token() != null ? titular.token() : UUID.randomUUID().toString()
+        );
+        return titularRepositoryPort.save(prepared);
     }
 
     @Override

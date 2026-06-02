@@ -27,24 +27,27 @@ class TransactionListFilterTest {
     @DisplayName("constructor con valores retorna opcionales presentes")
     void constructor_withValues_returnsPresentOptionals() {
         UUID categoriaId = UUID.randomUUID();
+        UUID titularId = UUID.randomUUID();
         YearMonth mes = YearMonth.of(2025, 5);
 
         TransactionListFilter filter = new TransactionListFilter(
                 Optional.of(TypeTransaction.GASTO),
                 Optional.of(categoriaId),
-                Optional.of(mes)
+                Optional.of(mes),
+                Optional.of(titularId)
         );
 
         assertThat(filter.tipo()).contains(TypeTransaction.GASTO);
         assertThat(filter.categoriaId()).contains(categoriaId);
         assertThat(filter.mes()).contains(mes);
+        assertThat(filter.titularId()).contains(titularId);
     }
 
     @Test
     @DisplayName("constructor con vacíos equivale a none()")
     void constructor_withEmptyOptionals_equalsNone() {
         TransactionListFilter manual = new TransactionListFilter(
-                Optional.empty(), Optional.empty(), Optional.empty());
+                Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
         TransactionListFilter none = TransactionListFilter.none();
 
         assertThat(manual).isEqualTo(none);

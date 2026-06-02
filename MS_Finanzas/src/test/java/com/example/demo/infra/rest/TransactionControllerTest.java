@@ -59,7 +59,7 @@ class TransactionControllerTest {
 
     @Test
     void list_shouldBuildFilterWithoutMonthWhenBlank() {
-        ResponseEntity<List<TransactionResponse>> response = controller.list(null, null, "");
+        ResponseEntity<List<TransactionResponse>> response = controller.list(null, null, "", null);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).containsExactly(transactionResponse);
@@ -70,7 +70,7 @@ class TransactionControllerTest {
 
     @Test
     void list_shouldParseYearMonthWhenProvided() {
-        ResponseEntity<List<TransactionResponse>> response = controller.list(TypeTransaction.GASTO, categoriaId, "2026-05");
+        ResponseEntity<List<TransactionResponse>> response = controller.list(TypeTransaction.GASTO, categoriaId, "2026-05", null);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).containsExactly(transactionResponse);
@@ -146,7 +146,7 @@ class TransactionControllerTest {
         private Transaction updateResult;
 
         private StubTransactionService() {
-            super(null, null, null);
+            super(null, null, null, null);
         }
 
         @Override

@@ -59,7 +59,7 @@ class JpaTransactionRepositoryAdapterTest {
         when(jpaTransactionRepository.findFiltered(any(), any(), any(), any())).thenReturn(List.of(entity));
         when(transactionEntityMapper.toDomain(entity)).thenReturn(domain);
 
-        var filter = new TransactionListFilter(Optional.empty(), Optional.empty(), Optional.of(YearMonth.of(2024, 5)));
+        var filter = new TransactionListFilter(Optional.empty(), Optional.empty(), Optional.of(YearMonth.of(2024, 5)), Optional.empty());
 
         var result = adapter.findAll(filter);
 

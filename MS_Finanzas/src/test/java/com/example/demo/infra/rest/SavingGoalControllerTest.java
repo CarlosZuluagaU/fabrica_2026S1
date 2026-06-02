@@ -5,8 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+
+import org.springframework.hateoas.CollectionModel;
 
 import com.example.demo.application.service.SavingGoalService;
 import com.example.demo.domain.model.GoalStatus;
@@ -69,10 +72,11 @@ class SavingGoalControllerTest {
 
     @Test
     void getAllSavingGoals_shouldReturnMappedGoals() {
-        ResponseEntity<List<SavingGoalResponse>> result = controller.getAllSavingGoals();
+        ResponseEntity<CollectionModel<SavingGoalResponse>> result = controller.getAllSavingGoals();
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(result.getBody()).containsExactly(response);
+        CollectionModel<SavingGoalResponse> body = Objects.requireNonNull(result.getBody());
+        assertThat(body.getContent()).containsExactly(response);
     }
 
     @Test

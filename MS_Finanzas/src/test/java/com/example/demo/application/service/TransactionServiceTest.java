@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import static org.mockito.Mockito.verify;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.example.demo.application.repository.BudgetRepositoryPort;
 import com.example.demo.application.repository.CategoryRepositoryPort;
 import com.example.demo.application.repository.TitularRepositoryPort;
 import com.example.demo.application.repository.TransactionRepositoryPort;
@@ -38,6 +39,9 @@ class TransactionServiceTest {
 
     @Mock
     private TitularRepositoryPort titularRepositoryPort;
+
+    @Mock
+    private BudgetRepositoryPort budgetRepositoryPort;
 
     @InjectMocks
     private TransactionService transactionService;
