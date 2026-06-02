@@ -37,8 +37,12 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('MS_Finanzas/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Build and analyze
+      - name: Run tests and generate coverage
+        working-directory: ./MS_Finanzas
+        run: mvn -B test jacoco:report
+
+      - name: Analyze with SonarCloud
         working-directory: ./MS_Finanzas
         env:
           SONAR_TOKEN: ${{ secrets.Sonar }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=CarlosZuluagaU_fabrica_2026S12 -Dsonar.organization=carloszuluagau
+        run: mvn -B sonar:sonar -Dsonar.projectKey=CarlosZuluagaU_fabrica_2026S12 -Dsonar.organization=carloszuluagau -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
