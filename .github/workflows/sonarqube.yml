@@ -39,7 +39,7 @@ jobs:
 
       - name: Run tests and generate coverage
         working-directory: ./MS_Finanzas
-        run: mvn -B test jacoco:report
+        run: mvn -B verify -Dsonar.skip=true
 
       - name: Analyze with SonarCloud
         working-directory: ./MS_Finanzas
