@@ -53,12 +53,14 @@ class SavingGoalValidatorTest {
 
     @Test
     void validateFechaLimite_shouldRejectPastDate() {
-        assertThrows(IllegalArgumentException.class, () -> SavingGoalValidator.validateFechaLimite(LocalDate.now().minusDays(1)));
+        LocalDate pastDate = LocalDate.now().minusDays(1);
+        assertThrows(IllegalArgumentException.class, () -> SavingGoalValidator.validateFechaLimite(pastDate));
     }
 
     @Test
     void validateFechaLimite_shouldRejectToday() {
-        assertThrows(IllegalArgumentException.class, () -> SavingGoalValidator.validateFechaLimite(LocalDate.now()));
+        LocalDate today = LocalDate.now();
+        assertThrows(IllegalArgumentException.class, () -> SavingGoalValidator.validateFechaLimite(today));
     }
 
     @Test
