@@ -86,4 +86,53 @@ class CategoryServiceTest {
 
         assertThrows(ResourceNotFoundException.class, () -> categoryService.updateCategory(categoryId, category));
     }
+
+    @Test
+    void updateCategory_shouldThrowWhenNewNameAlreadyExists() {
+        Category updated = new Category(categoryId, "Transporte", new Titular(titularId, "Ana", "Pérez", "Gómez", "3001234567", null, "COP", "America/Bogota", "token"));
+        given(categoryRepositoryPort.findById(categoryId)).willReturn(Optional.of(category));
+        given(categoryRepositoryPort.existsByNameAndTitularId("Transporte", titularId)).willReturn(true);
+
+        assertThrows(CategoryAlreadyExistsException.class, () -> categoryService.updateCategory(categoryId, updated));
+    }
+
+    @Test
+    void updateCategory_shouldUpdateWhenValidAndNameFree() {
+        Category updated = new Category(categoryId, "Transporte", new Titular(titularId, "Ana", "Pérez", "Gómez", "3001234567", null, "COP", "America/Bogota", "token"));
+        given(categoryRepositoryPort.findById(categoryId)).willReturn(Optional.of(category));
+        given(categoryRepositoryPort.existsByNameAndTitularId("Transporte", titularId)).willReturn(false);
+        given(categoryRepositoryPort.update(categoryId, updated)).willReturn(updated);
+
+        Category result = categoryService.updateCategory(categoryId, updated);
+
+        assertEquals(updated, result);
+    }
+
+    @Test
+    void findById_shouldReturnCategoryWhenExists() {
+        given(categoryRepositoryPort.findById(categoryId)).willReturn(Optional.of(category));
+
+        assertEquals(Optional.of(category), categoryService.findById(categoryId));
+    }
+
+    @Test
+    void findById_shouldReturnEmptyWhenNotExists() {
+        given(categoryRepositoryPort.findById(categoryId)).willReturn(Optional.empty());
+
+        assertEquals(Optional.empty(), categoryService.findById(categoryId));
+    }
+
+    @Test
+    void findAll_shouldReturnAllCategories() {
+        given(categoryRepositoryPort.findAll()).willReturn(java.util.List.of(category));
+
+        assertEquals(1, categoryService.findAll().size());
+    }
+
+    @Test
+    void deleteCategoryById_shouldThrowWhenNotFound() {
+        given(categoryRepositoryPort.findById(categoryId)).willReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> categoryService.deleteCategoryById(categoryId));
+    }
 }

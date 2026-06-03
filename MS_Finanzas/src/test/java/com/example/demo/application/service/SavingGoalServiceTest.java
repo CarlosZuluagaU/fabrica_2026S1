@@ -153,4 +153,74 @@ class SavingGoalServiceTest {
         assertThrows(SavingGoalNotFoundException.class,
             () -> savingGoalService.updateSavingGoal(goalId, newGoalPayload));
     }
+
+    @Test
+    void updateSavingGoal_shouldThrowWhenNewNameIsDuplicate() {
+        given(savingGoalRepositoryPort.findById(goalId)).willReturn(Optional.of(existingGoal));
+        given(savingGoalRepositoryPort.existsByNombre("Viaje actualizado")).willReturn(true);
+
+        assertThrows(DuplicateGoalNameException.class,
+            () -> savingGoalService.updateSavingGoal(goalId, newGoalPayload));
+    }
+
+    @Test
+    void updateSavingGoal_shouldAllowSameNameUpdate() {
+        SavingGoal sameNamePayload = new SavingGoal(null, "Viaje", 1_500_000.0, 0,
+            GoalStatus.EN_PROGRESO, LocalDate.now().plusMonths(8), titular);
+        given(savingGoalRepositoryPort.findById(goalId)).willReturn(Optional.of(existingGoal));
+        given(savingGoalRepositoryPort.update(eq(goalId), any(SavingGoal.class))).willAnswer(inv -> inv.getArgument(1));
+
+        SavingGoal result = savingGoalService.updateSavingGoal(goalId, sameNamePayload);
+
+        assertEquals("Viaje", result.nombre());
+    }
+
+    @Test
+    void addSavingGoal_shouldSaveWhenValid() {
+        SavingGoal toCreate = new SavingGoal(null, "Carro", 5_000_000.0, 0,
+            GoalStatus.EN_PROGRESO, LocalDate.now().plusMonths(12), titular);
+        SavingGoal saved = new SavingGoal(UUID.randomUUID(), "Carro", 5_000_000.0, 0,
+            GoalStatus.EN_PROGRESO, LocalDate.now().plusMonths(12), titular);
+
+        given(savingGoalRepositoryPort.existsByNombre("Carro")).willReturn(false);
+        given(savingGoalRepositoryPort.save(any(SavingGoal.class))).willReturn(saved);
+
+        SavingGoal result = savingGoalService.addSavingGoal(toCreate);
+
+        assertEquals(saved, result);
+        verify(savingGoalRepositoryPort).save(any(SavingGoal.class));
+    }
+
+    @Test
+    void addSavingGoal_shouldThrowWhenNull() {
+        assertThrows(IllegalArgumentException.class, () -> savingGoalService.addSavingGoal(null));
+    }
+
+    @Test
+    void findById_shouldReturnGoal() {
+        given(savingGoalRepositoryPort.findById(goalId)).willReturn(Optional.of(existingGoal));
+
+        assertEquals(Optional.of(existingGoal), savingGoalService.findById(goalId));
+    }
+
+    @Test
+    void findAll_shouldReturnList() {
+        given(savingGoalRepositoryPort.findAll()).willReturn(java.util.List.of(existingGoal));
+
+        assertEquals(1, savingGoalService.findAll().size());
+    }
+
+    @Test
+    void deleteSavingGoalById_shouldThrowWhenNotFound() {
+        given(savingGoalRepositoryPort.findById(goalId)).willReturn(Optional.empty());
+
+        assertThrows(SavingGoalNotFoundException.class, () -> savingGoalService.deleteSavingGoalById(goalId));
+    }
+
+    @Test
+    void markAsCompleted_shouldThrowWhenNotFound() {
+        given(savingGoalRepositoryPort.findById(goalId)).willReturn(Optional.empty());
+
+        assertThrows(SavingGoalNotFoundException.class, () -> savingGoalService.markAsCompleted(goalId));
+    }
 }

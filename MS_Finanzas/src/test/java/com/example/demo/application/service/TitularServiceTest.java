@@ -125,4 +125,43 @@ class TitularServiceTest {
 
         assertThrows(ResourceNotFoundException.class, () -> titularService.deleteTitular(titularId));
     }
+
+    @Test
+    void findById_shouldReturnTitularWhenExists() {
+        given(titularRepositoryPort.findById(titularId)).willReturn(Optional.of(titular));
+
+        assertEquals(Optional.of(titular), titularService.findById(titularId));
+    }
+
+    @Test
+    void findById_shouldReturnEmptyWhenNotFound() {
+        given(titularRepositoryPort.findById(titularId)).willReturn(Optional.empty());
+
+        assertEquals(Optional.empty(), titularService.findById(titularId));
+    }
+
+    @Test
+    void updateTitular_shouldThrowWhenNotFound() {
+        given(titularRepositoryPort.findById(titularId)).willReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> titularService.updateTitular(titularId, titular));
+    }
+
+    @Test
+    void crearTitular_shouldGenerateTokenWhenNull() {
+        given(titularRepositoryPort.save(any(Titular.class))).willAnswer(inv -> inv.getArgument(0));
+
+        Titular result = titularService.createTitular(titularSinId);
+
+        assertNotNull(result.token());
+    }
+
+    @Test
+    void crearTitular_shouldKeepExistingToken() {
+        given(titularRepositoryPort.save(any(Titular.class))).willAnswer(inv -> inv.getArgument(0));
+
+        Titular result = titularService.createTitular(titular);
+
+        assertEquals("token-existente", result.token());
+    }
 }
