@@ -21,6 +21,8 @@ import com.example.demo.domain.validation.SavingGoalValidator;
 public class SavingGoalService implements AddSavingGoalUseCase, RetrieveSavingGoalUseCase,
         UpdateSavingGoalUseCase, RemoveSavingGoalUseCase {
 
+    private static final String META_NO_ENCONTRADA = "Meta de ahorro no encontrada con ID: ";
+
     private final SavingGoalRepositoryPort savingGoalRepositoryPort;
 
     public SavingGoalService(SavingGoalRepositoryPort savingGoalRepositoryPort) {
@@ -68,7 +70,7 @@ public class SavingGoalService implements AddSavingGoalUseCase, RetrieveSavingGo
     public SavingGoal updateSavingGoal(UUID goalId, SavingGoal savingGoal) {
         SavingGoal existingGoal = savingGoalRepositoryPort.findById(goalId)
             .orElseThrow(() -> new SavingGoalNotFoundException(
-                "Meta de ahorro no encontrada con ID: " + goalId));
+                META_NO_ENCONTRADA + goalId));
 
         SavingGoalValidator.validateNombre(savingGoal.nombre());
         SavingGoalValidator.validateMonto(savingGoal.montoObjetivo());
@@ -96,14 +98,14 @@ public class SavingGoalService implements AddSavingGoalUseCase, RetrieveSavingGo
     public void deleteSavingGoalById(UUID goalId) {
         savingGoalRepositoryPort.findById(goalId)
             .orElseThrow(() -> new SavingGoalNotFoundException(
-                "Meta de ahorro no encontrada con ID: " + goalId));
+                META_NO_ENCONTRADA + goalId));
         savingGoalRepositoryPort.deleteById(goalId);
     }
 
     public SavingGoal markAsCompleted(UUID goalId) {
         SavingGoal existing = savingGoalRepositoryPort.findById(goalId)
             .orElseThrow(() -> new SavingGoalNotFoundException(
-                "Meta de ahorro no encontrada con ID: " + goalId));
+                META_NO_ENCONTRADA + goalId));
         return savingGoalRepositoryPort.updateAvance(goalId, existing.avance(), GoalStatus.COMPLETADA);
     }
 }

@@ -134,8 +134,13 @@ public class TransactionService implements
     @Override
     public List<Transaction> findFiltered(TypeTransaction tipo, UUID categoriaId, UUID titularId, LocalDate desde,
             LocalDate hasta) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findFiltered'");
+        TransactionListFilter filter = new TransactionListFilter(
+            Optional.ofNullable(tipo),
+            Optional.ofNullable(categoriaId),
+            Optional.empty(),
+            Optional.ofNullable(titularId)
+        );
+        return transactionRepositoryPort.findAll(filter);
     }
 
     
