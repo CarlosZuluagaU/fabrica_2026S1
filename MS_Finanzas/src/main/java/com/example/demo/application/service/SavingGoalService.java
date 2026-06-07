@@ -1,5 +1,6 @@
 package com.example.demo.application.service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -81,13 +82,21 @@ public class SavingGoalService implements AddSavingGoalUseCase, RetrieveSavingGo
             throw new DuplicateGoalNameException("Ya existe una meta con el nombre: " + savingGoal.nombre());
         }
 
+        int nuevoAvance = savingGoal.avance() != null ? savingGoal.avance() : existingGoal.avance();
+        GoalStatus nuevoEstado = nuevoAvance >= savingGoal.montoObjetivo()
+            ? GoalStatus.COMPLETADA
+            : GoalStatus.EN_PROGRESO;
+        LocalDate nuevaFecha = savingGoal.fechaLimite() != null
+            ? savingGoal.fechaLimite()
+            : existingGoal.fechaLimite();
+
         SavingGoal updatedGoal = new SavingGoal(
             goalId,
             savingGoal.nombre(),
             savingGoal.montoObjetivo(),
-            existingGoal.avance(),
-            existingGoal.estado(),
-            savingGoal.fechaLimite(),
+            nuevoAvance,
+            nuevoEstado,
+            nuevaFecha,
             existingGoal.titular()
         );
 

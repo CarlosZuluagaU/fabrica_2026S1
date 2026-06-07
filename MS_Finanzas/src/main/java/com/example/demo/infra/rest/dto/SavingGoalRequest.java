@@ -13,6 +13,9 @@ public record SavingGoalRequest(
     @Schema(description = "Monto objetivo en pesos colombianos", example = "12000000", requiredMode=Schema.RequiredMode.REQUIRED)
     Double montoObjetivo,
 
+    @Schema(description = "Avance acumulado en pesos colombianos", example = "500000")
+    Integer avance,
+
     @Schema(description = "Fecha límite para alcanzar la meta (formato YYYY-MM-DD), opcional", example = "2026-12-31")
     LocalDate fechaLimite,
 

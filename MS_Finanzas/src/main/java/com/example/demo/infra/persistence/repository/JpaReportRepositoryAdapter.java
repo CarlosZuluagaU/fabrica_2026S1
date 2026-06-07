@@ -1,4 +1,6 @@
 package com.example.demo.infra.persistence.repository;
+import java.util.Optional;
+import java.util.UUID;
 import org.springframework.stereotype.Component;
 
 import com.example.demo.application.repository.ReportRepositoryPort;
@@ -10,16 +12,22 @@ import com.example.demo.infra.persistence.entity.ReportEntity;
 public class JpaReportRepositoryAdapter implements ReportRepositoryPort {
     private final JpaReportRepository jpaReportRepository;
     private final ReportEntityMapper reportEntityMapper;
-    
+
     public JpaReportRepositoryAdapter(JpaReportRepository jpaReportRepository, ReportEntityMapper reportEntityMapper) {
         this.jpaReportRepository = jpaReportRepository;
         this.reportEntityMapper = reportEntityMapper;
     }
 
     @Override
-    public Report save(Report report) {  
+    public Report save(Report report) {
         ReportEntity reportEntity = reportEntityMapper.toEntity(report);
         ReportEntity savedReportEntity = jpaReportRepository.save(reportEntity);
         return reportEntityMapper.toDomain(savedReportEntity, savedReportEntity.getTitular());
+    }
+
+    @Override
+    public Optional<Report> findByTitularIdAndMesAndAnho(UUID titularId, Integer mes, Integer anho) {
+        return jpaReportRepository.findByTitularTitularIdAndMesAndAnho(titularId, mes, anho)
+            .map(e -> reportEntityMapper.toDomain(e, e.getTitular()));
     }
 }

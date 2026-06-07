@@ -11,7 +11,7 @@ public interface SavingGoalRequestMapper {
 
     @Mapping(target = "goalId", ignore = true)
     @Mapping(target = "estado", ignore = true)
-    @Mapping(target = "avance", ignore = true)
+    @Mapping(target = "avance", source = "avance")
     @Mapping(target = "titular", expression = "java(createTitular(request))")
     SavingGoal toDomain(SavingGoalRequest request);
 

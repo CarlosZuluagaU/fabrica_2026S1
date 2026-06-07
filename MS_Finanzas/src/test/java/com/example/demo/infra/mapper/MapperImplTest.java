@@ -482,7 +482,7 @@ class MapperImplTest {
     void savingGoalRequestMapper_toDomain_withTitularId() {
         UUID titularId = UUID.randomUUID();
         SavingGoalRequest req = new SavingGoalRequest("Vacaciones", 2_000_000.0,
-                LocalDate.now().plusMonths(6), titularId);
+                null, LocalDate.now().plusMonths(6), titularId);
 
         SavingGoal d = new SavingGoalRequestMapperImpl().toDomain(req);
         assertThat(d.nombre()).isEqualTo("Vacaciones");

@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.application.query.TransactionListFilter;
 import com.example.demo.application.repository.TransactionRepositoryPort;
@@ -67,10 +68,12 @@ public class JpaTransactionRepositoryAdapter implements TransactionRepositoryPor
     }
 
     @Override
+    @Transactional
     public void deleteById(UUID id) {
         if (!jpaTransactionRepository.existsById(id)) {
             throw new ResourceNotFoundException("Transacción no encontrada");
         }
+        jpaTransactionRepository.deleteGoalLinksByTransactionId(id);
         jpaTransactionRepository.deleteById(id);
     }
 

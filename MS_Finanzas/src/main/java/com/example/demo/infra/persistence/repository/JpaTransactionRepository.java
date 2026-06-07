@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -51,6 +52,10 @@ public interface JpaTransactionRepository extends JpaRepository<TransactionEntit
         @Param("anho") Integer anho,
         @Param("mes") Integer mes
     );
+
+    @Modifying
+    @Query(value = "DELETE FROM transacciones_metas WHERE transaccion_id = :id", nativeQuery = true)
+    void deleteGoalLinksByTransactionId(@Param("id") UUID id);
 
     @Query("""
         SELECT COALESCE(SUM(t.monto), 0)

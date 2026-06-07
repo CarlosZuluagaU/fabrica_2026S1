@@ -46,10 +46,14 @@ public class ReportService implements GenerateReportUseCase{
 
         BigDecimal balanceNeto = ingresosAcumulados.subtract(gastosAcumulados).add(retirosMetaAcumulados).subtract(aportesMetaAcumulados);
 
-        Report report = new Report(null, mes, anho, ingresosAcumulados, gastosAcumulados, 
+        UUID existingId = reportRepositoryPort.findByTitularIdAndMesAndAnho(titularId, mes, anho)
+            .map(Report::reportId)
+            .orElse(null);
+
+        Report report = new Report(existingId, mes, anho, ingresosAcumulados, gastosAcumulados,
             aportesMetaAcumulados.subtract(retirosMetaAcumulados), balanceNeto, Instant.now(), titular);
-        
-        return reportRepositoryPort.save(report);   
+
+        return reportRepositoryPort.save(report);
     }
     private BigDecimal nullToZero(BigDecimal value) {
         return value == null ? BigDecimal.ZERO : value;

@@ -91,7 +91,7 @@ void savingGoalRequestMapper_createTitular_requiresTitularId() {
         }
     };
 
-    SavingGoalRequest request = new SavingGoalRequest("Vacaciones", 1000.0, java.time.LocalDate.now(), null);
+    SavingGoalRequest request = new SavingGoalRequest("Vacaciones", 1000.0, null, java.time.LocalDate.now(), null);
     assertThatThrownBy(() -> mapper.createTitular(request))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("titularId");

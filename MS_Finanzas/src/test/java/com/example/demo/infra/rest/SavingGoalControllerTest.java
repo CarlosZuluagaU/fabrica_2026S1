@@ -81,7 +81,7 @@ class SavingGoalControllerTest {
 
     @Test
     void createSavingGoal_shouldReturnCreated() {
-        SavingGoalRequest request = new SavingGoalRequest("Vacaciones", 5000000.0, LocalDate.of(2026, 12, 31), titularId);
+        SavingGoalRequest request = new SavingGoalRequest("Vacaciones", 5000000.0, null, LocalDate.of(2026, 12, 31), titularId);
 
         ResponseEntity<SavingGoalResponse> result = controller.createSavingGoal(request);
 
@@ -92,7 +92,7 @@ class SavingGoalControllerTest {
 
     @Test
     void updateSavingGoal_shouldReturnOkWithUpdatedResponse() {
-        SavingGoalRequest request = new SavingGoalRequest("Vacaciones Actualizada", 6000000.0, LocalDate.of(2027, 6, 30), titularId);
+        SavingGoalRequest request = new SavingGoalRequest("Vacaciones Actualizada", 6000000.0, null, LocalDate.of(2027, 6, 30), titularId);
 
         ResponseEntity<SavingGoalResponse> result = controller.updateSavingGoal(goalId, request);
 

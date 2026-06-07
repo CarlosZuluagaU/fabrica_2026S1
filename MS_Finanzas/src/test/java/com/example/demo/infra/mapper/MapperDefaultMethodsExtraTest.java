@@ -79,11 +79,11 @@ class MapperDefaultMethodsExtraTest {
         };
 
         // when titularId is null -> exception
-        SavingGoalRequest req = new SavingGoalRequest(null, null, null, null);
+        SavingGoalRequest req = new SavingGoalRequest(null, null, null, null, null);
         assertThrows(IllegalArgumentException.class, () -> mapper.createTitular(req));
 
         UUID tid = UUID.randomUUID();
-        SavingGoalRequest req2 = new SavingGoalRequest(null, null, null, tid);
+        SavingGoalRequest req2 = new SavingGoalRequest(null, null, null, null, tid);
         var titular = mapper.createTitular(req2);
         assertNotNull(titular);
         assertEquals(tid, titular.titularId());
