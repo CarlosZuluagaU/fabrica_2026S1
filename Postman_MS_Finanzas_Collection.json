@@ -1,0 +1,917 @@
+{
+  "info": {
+    "_postman_id": "fabrica-2026-ms-finanzas",
+    "name": "MS Finanzas - Pruebas HU",
+    "description": "Colección de pruebas para las Historias de Usuario (HU) del microservicio MS_Finanzas",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "HU-01 Registrar una transacción financiera",
+      "item": [
+        {
+          "name": "Crear transacción - INGRESO (Happy Path)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Salario Enero\",\n  \"descripcion\": \"Pago quincenal de enero\",\n  \"monto\": 3500000,\n  \"tipo\": \"INGRESO\",\n  \"fecha\": \"2026-05-12\",\n  \"categoria\": {\n    \"categoriaId\": null,\n    \"nombre\": null\n  },\n  \"titular\": {\n    \"titularId\": \"{{TITULAR_ID}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/transactions",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "transactions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear transacción - GASTO (Happy Path)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Mercado Semanal\",\n  \"descripcion\": \"Compra en supermercado D1\",\n  \"monto\": 150000,\n  \"tipo\": \"GASTO\",\n  \"fecha\": \"2026-05-12\",\n  \"categoria\": {\n    \"categoriaId\": \"{{CATEGORIA_ID}}\",\n    \"nombre\": \"Alimentación\"\n  },\n  \"titular\": {\n    \"titularId\": \"{{TITULAR_ID}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/transactions",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "transactions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear transacción - Sin categoría (Asigna automática)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Pago Servicios\",\n  \"descripcion\": \"Pago de servicios del mes\",\n  \"monto\": 250000,\n  \"tipo\": \"GASTO\",\n  \"fecha\": null,\n  \"categoria\": null,\n  \"titular\": {\n    \"titularId\": \"{{TITULAR_ID}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/transactions",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "transactions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear transacción - Monto inválido (Error)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Transacción Inválida\",\n  \"descripcion\": null,\n  \"monto\": -5000,\n  \"tipo\": \"GASTO\",\n  \"fecha\": \"2026-05-12\",\n  \"categoria\": null,\n  \"titular\": {\n    \"titularId\": \"{{TITULAR_ID}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/transactions",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "transactions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear transacción - Titular no existe (Error)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Test Titular Inválido\",\n  \"descripcion\": null,\n  \"monto\": 100000,\n  \"tipo\": \"INGRESO\",\n  \"fecha\": \"2026-05-12\",\n  \"categoria\": null,\n  \"titular\": {\n    \"titularId\": \"00000000-0000-0000-0000-000000000000\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/transactions",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "transactions"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "HU-02 Consultar el listado de transacciones",
+      "item": [
+        {
+          "name": "Listar todas las transacciones (Happy Path)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/transactions",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "transactions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Filtrar por tipo - INGRESO",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/transactions?tipo=INGRESO",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "transactions"
+              ],
+              "query": [
+                {
+                  "key": "tipo",
+                  "value": "INGRESO"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Filtrar por tipo - GASTO",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/transactions?tipo=GASTO",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "transactions"
+              ],
+              "query": [
+                {
+                  "key": "tipo",
+                  "value": "GASTO"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Filtrar por categoría",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/transactions?categoriaId={{CATEGORIA_ID}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "transactions"
+              ],
+              "query": [
+                {
+                  "key": "categoriaId",
+                  "value": "{{CATEGORIA_ID}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Filtrar por mes (2026-05)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/transactions?mes=2026-05",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "transactions"
+              ],
+              "query": [
+                {
+                  "key": "mes",
+                  "value": "2026-05"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener transacción por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/transactions/{{TRANSACTION_ID}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "transactions",
+                "{{TRANSACTION_ID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener transacción inexistente (Error 404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/transactions/00000000-0000-0000-0000-000000000000",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "transactions",
+                "00000000-0000-0000-0000-000000000000"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "HU-03 Editar una transacción existente",
+      "item": [
+        {
+          "name": "Actualizar monto (Happy Path)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Mercado Actualizado\",\n  \"descripcion\": \"Compra actualizada en supermercado\",\n  \"monto\": 180000,\n  \"tipo\": \"GASTO\",\n  \"fecha\": \"2026-05-12\",\n  \"categoria\": {\n    \"categoriaId\": \"{{CATEGORIA_ID}}\"\n  },\n  \"titular\": {\n    \"titularId\": \"{{TITULAR_ID}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/transactions/{{TRANSACTION_ID}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "transactions",
+                "{{TRANSACTION_ID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cambiar categoría (Happy Path)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Transporte\",\n  \"descripcion\": \"Viaje en Uber\",\n  \"monto\": 45000,\n  \"tipo\": \"GASTO\",\n  \"fecha\": \"2026-05-12\",\n  \"categoria\": {\n    \"categoriaId\": \"{{CATEGORIA_TRANSPORTE_ID}}\"\n  },\n  \"titular\": {\n    \"titularId\": \"{{TITULAR_ID}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/transactions/{{TRANSACTION_ID}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "transactions",
+                "{{TRANSACTION_ID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cambiar fecha (Happy Path)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Compra Actualizada\",\n  \"descripcion\": \"Compra en diferente fecha\",\n  \"monto\": 150000,\n  \"tipo\": \"GASTO\",\n  \"fecha\": \"2026-05-10\",\n  \"categoria\": {\n    \"categoriaId\": \"{{CATEGORIA_ID}}\"\n  },\n  \"titular\": {\n    \"titularId\": \"{{TITULAR_ID}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/transactions/{{TRANSACTION_ID}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "transactions",
+                "{{TRANSACTION_ID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Editar transacción inexistente (Error 404)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Test\",\n  \"descripcion\": null,\n  \"monto\": 100000,\n  \"tipo\": \"GASTO\",\n  \"fecha\": \"2026-05-12\",\n  \"categoria\": null,\n  \"titular\": {\n    \"titularId\": \"{{TITULAR_ID}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/transactions/00000000-0000-0000-0000-000000000000",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "transactions",
+                "00000000-0000-0000-0000-000000000000"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "HU-04 Eliminar una transacción",
+      "item": [
+        {
+          "name": "Eliminar transacción (Happy Path)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/transactions/{{TRANSACTION_ID}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "transactions",
+                "{{TRANSACTION_ID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar transacción inexistente (Error 404)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/transactions/00000000-0000-0000-0000-000000000000",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "transactions",
+                "00000000-0000-0000-0000-000000000000"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Verificar que fue eliminada (GET)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/transactions/{{TRANSACTION_ID}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "transactions",
+                "{{TRANSACTION_ID}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "HU-05 Crear una categoría personalizada",
+      "item": [
+        {
+          "name": "Crear categoría (Happy Path)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Transporte\",\n  \"titular\": {\n    \"titularId\": \"{{TITULAR_ID}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/categories",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "categories"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear categoría - Entretenimiento",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Entretenimiento\",\n  \"titular\": {\n    \"titularId\": \"{{TITULAR_ID}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/categories",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "categories"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear categoría - Salud",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Salud\",\n  \"titular\": {\n    \"titularId\": \"{{TITULAR_ID}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/categories",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "categories"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar todas las categorías",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/categories",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "categories"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener categoría por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/categories/{{CATEGORIA_ID}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "categories",
+                "{{CATEGORIA_ID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar categoría",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Transporte Actualizado\",\n  \"titular\": {\n    \"titularId\": \"{{TITULAR_ID}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/categories/{{CATEGORIA_ID}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "categories",
+                "{{CATEGORIA_ID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar categoría",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/categories/{{CATEGORIA_ID}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "categories",
+                "{{CATEGORIA_ID}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "HU-06 Crear lista de metas de ahorro",
+      "item": [
+        {
+          "name": "Crear meta de ahorro (Happy Path)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Vacaciones 2026\",\n  \"descripcion\": \"Viaje a Santa Marta\",\n  \"montoMeta\": 5000000,\n  \"montoAhorrado\": 0,\n  \"fechaLimite\": \"2026-12-31\",\n  \"categoria\": \"OCIO\",\n  \"titular\": {\n    \"titularId\": \"{{TITULAR_ID}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/saving-goals",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "saving-goals"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear meta - Casa nueva",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Casa Nueva\",\n  \"descripcion\": \"Ahorrar para cuota inicial\",\n  \"montoMeta\": 20000000,\n  \"montoAhorrado\": 2500000,\n  \"fechaLimite\": \"2027-12-31\",\n  \"categoria\": \"VIVIENDA\",\n  \"titular\": {\n    \"titularId\": \"{{TITULAR_ID}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/saving-goals",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "saving-goals"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear meta - Vehículo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Vehículo Nuevo\",\n  \"descripcion\": \"Auto de lujo\",\n  \"montoMeta\": 35000000,\n  \"montoAhorrado\": 500000,\n  \"fechaLimite\": \"2027-06-30\",\n  \"categoria\": \"TRANSPORTE\",\n  \"titular\": {\n    \"titularId\": \"{{TITULAR_ID}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/saving-goals",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "saving-goals"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar todas las metas de ahorro",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/saving-goals",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "saving-goals"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener meta por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/saving-goals/{{SAVING_GOAL_ID}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "saving-goals",
+                "{{SAVING_GOAL_ID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar meta de ahorro",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Vacaciones 2026 - Actualizada\",\n  \"descripcion\": \"Viaje a Cartagena y Santa Marta\",\n  \"montoMeta\": 6000000,\n  \"montoAhorrado\": 1500000,\n  \"fechaLimite\": \"2026-12-31\",\n  \"categoria\": \"OCIO\",\n  \"titular\": {\n    \"titularId\": \"{{TITULAR_ID}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/saving-goals/{{SAVING_GOAL_ID}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "saving-goals",
+                "{{SAVING_GOAL_ID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar meta de ahorro",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/saving-goals/{{SAVING_GOAL_ID}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "saving-goals",
+                "{{SAVING_GOAL_ID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "HU-07 Registrar aporte a una meta de ahorro",
+          "item": [
+            {
+              "name": "Registrar aporte meta (Happy Path)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombre\": \"Aporte a Vacaciones 2026\",\n  \"descripcion\": \"Aporte mensual a la meta\",\n  \"monto\": 250000,\n  \"tipo\": \"APORTE_META\",\n  \"fecha\": \"2026-05-12\",\n  \"categoria\": null,\n  \"titular\": {\n    \"titularId\": \"{{TITULAR_ID}}\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{BASE_URL}}/api/transactions",
+                  "host": [
+                    "{{BASE_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transactions"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Verificar reporte mensual con aporte meta",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"mes\": 5,\n  \"anho\": 2026,\n  \"titularId\": \"{{TITULAR_ID}}\"\n}"
+                },
+                "url": {
+                  "raw": "{{BASE_URL}}/api/reports",
+                  "host": [
+                    "{{BASE_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "reports"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "BASE_URL",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "TITULAR_ID",
+      "value": "{{REEMPLAZAR_CON_ID_TITULAR}}",
+      "type": "string"
+    },
+    {
+      "key": "CATEGORIA_ID",
+      "value": "{{REEMPLAZAR_CON_ID_CATEGORIA}}",
+      "type": "string"
+    },
+    {
+      "key": "CATEGORIA_TRANSPORTE_ID",
+      "value": "{{REEMPLAZAR_CON_ID_CATEGORIA_TRANSPORTE}}",
+      "type": "string"
+    },
+    {
+      "key": "TRANSACTION_ID",
+      "value": "{{REEMPLAZAR_CON_ID_TRANSACCION}}",
+      "type": "string"
+    },
+    {
+      "key": "SAVING_GOAL_ID",
+      "value": "{{REEMPLAZAR_CON_ID_META}}",
+      "type": "string"
+    }
+  ]
+}
