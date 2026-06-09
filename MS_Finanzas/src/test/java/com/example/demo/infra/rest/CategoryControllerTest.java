@@ -36,7 +36,7 @@ class CategoryControllerTest {
         titularId = UUID.randomUUID();
         categoryId = UUID.randomUUID();
         category = new Category(categoryId, "Salud", new Titular(titularId, "Ana", "Lopez", "Garcia", "3001234567", java.time.Instant.now(), "COP", "America/Bogota", "token-1"));
-        response = new CategoryResponse(category.nombre());
+        response = new CategoryResponse(category.categoriaId(), category.nombre());
         categoryResponseMapper = value -> response;
         categoryRequestMapper = request -> category;
         categoryService.findByIdResult = Optional.of(category);
